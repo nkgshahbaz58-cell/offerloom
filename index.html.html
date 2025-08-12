@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopHub - Your Ultimate Shopping Destination</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        /* Header and Navigation */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e0e0e0" width="1200" height="600"/><text x="600" y="300" text-anchor="middle" font-size="48" fill="%23999">Hero Background</text></svg>');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .product-card.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .product-image {
+            height: 200px;
+            background: linear-gradient(45deg, #f1f2f6, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .product-card:hover .product-image::before {
+            left: 100%;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+
+        .buy-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .buy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .contact-item {
+            padding: 2rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: transform 0.3s;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .contact-item i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .social-icons {
+            margin: 2rem 0;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 2rem;
+            margin: 0 1rem;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: #667eea;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .filter-buttons {
+                gap: 0.5rem;
+            }
+
+            .filter-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="#home" class="logo">ShopHub</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="mobile-menu" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-content fade-in">
+                <h1>Discover Amazing Products</h1>
+                <p>Find the best deals on electronics, fashion, and home essentials from trusted brands</p>
+                <a href="#categories" class="cta-button">Shop Now</a>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section id="categories" class="container">
+            <h2 style="text-align: center; font-size: 2.5rem; margin: 2rem 0; color: #2c3e50;">Featured Products</h2>
+            
+            <!-- Category Filter -->
+            <div class="category-filter">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-category="all">All Products</button>
+                    <button class="filter-btn" data-category="electronics">Electronics</button>
+                    <button class="filter-btn" data-category="fashion">Fashion</button>
+                    <button class="filter-btn" data-category="home">Home & Garden</button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2>Get In Touch</h2>
+                <p>Have questions? We're here to help you find the perfect products!</p>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email Us</h3>
+                        <p>support@shophub.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <h3>Call Us</h3>
+                        <p>+1 (555) 123-4567</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <h3>Support Hours</h3>
+                        <p>Mon-Fri: 9AM-6PM EST</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>ShopHub</h3>
+            <p>Your trusted source for quality products and amazing deals</p>
+            
+            <div class="social-icons">
+                <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+            </div>
+            
+            <p>&copy; 2024 ShopHub. All rights reserved. | Affiliate disclosure: We may earn commissions from purchases made through our links.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Product Data - EASILY CUSTOMIZABLE
+        // To add/edit products: modify the products array below
+        // Each product needs: id, name, description, price, category, affiliateLink, icon
+        const products = [
+            // Electronics Category
+            {
+                id: 1,
+                name: "Wireless Bluetooth Headphones",
+                description: "Premium noise-canceling headphones with 30-hour battery life",
+                price: "$89.99",
+                category: "electronics",
+                affiliateLink: "https://example.com/headphones-affiliate",
+                icon: "fas fa-headphones"
+            },
+            {
+                id: 2,
+                name: "Smart Fitness Tracker",
+                description: "Track your health and fitness with advanced monitoring features",
+                price: "$129.99",
+                category: "electronics",
+                affiliateLink: "https://example.com/fitness-tracker-affiliate",
+                icon: "fas fa-heartbeat"
+            },
+            {
+                id: 3,
+                name: "4K Webcam",
+                description: "Ultra HD webcam perfect for streaming and video calls",
+                price: "$79.99",
+                category: "electronics",
+                affiliateLink: "https://example.com/webcam-affiliate",
+                icon: "fas fa-video"
+            },
+            {
+                id: 4,
+                name: "Wireless Charging Pad",
+                description: "Fast wireless charging for all compatible devices",
+                price: "$24.99",
+                category: "electronics",
+                affiliateLink: "https://example.com/charger-affiliate",
+                icon: "fas fa-battery-full"
+            },
+
+            // Fashion Category
+            {
+                id: 5,
+                name: "Premium Cotton T-Shirt",
+                description: "Comfortable and stylish cotton t-shirt available in multiple colors",
+                price: "$29.99",
+                category: "fashion",
+                affiliateLink: "https://example.com/tshirt-affiliate",
+                icon: "fas fa-tshirt"
+            },
+            {
+                id: 6,
+                name: "Designer Sunglasses",
+                description: "UV protection sunglasses with polarized lenses",
+                price: "$159.99",
+                category: "fashion",
+                affiliateLink: "https://example.com/sunglasses-affiliate",
+                icon: "fas fa-glasses"
+            },
+            {
+                id: 7,
+                name: "Leather Wallet",
+                description: "Genuine leather wallet with RFID blocking technology",
+                price: "$49.99",
+                category: "fashion",
+                affiliateLink: "https://example.com/wallet-affiliate",
+                icon: "fas fa-wallet"
+            },
+            {
+                id: 8,
+                name: "Running Shoes",
+                description: "Lightweight and comfortable shoes perfect for running",
+                price: "$119.99",
+                category: "fashion",
+                affiliateLink: "https://example.com/shoes-affiliate",
+                icon: "fas fa-running"
+            },
+
+            // Home Category
+            {
+                id: 9,
+                name: "Smart LED Light Bulbs",
+                description: "WiFi-enabled LED bulbs with color changing capabilities",
+                price: "$34.99",
+                category: "home",
+                affiliateLink: "https://example.com/lightbulb-affiliate",
+                icon: "fas fa-lightbulb"
+            },
+            {
+                id: 10,
+                name: "Essential Oil Diffuser",
+                description: "Ultrasonic aromatherapy diffuser with timer and LED lights",
+                price: "$39.99",
+                category: "home",
+                affiliateLink: "https://example.com/diffuser-affiliate",
+                icon: "fas fa-spa"
+            },
+            {
+                id: 11,
+                name: "Coffee Maker",
+                description: "Programmable coffee maker with thermal carafe",
+                price: "$89.99",
+                category: "home",
+                affiliateLink: "https://example.com/coffee-affiliate",
+                icon: "fas fa-coffee"
+            },
+            {
+                id: 12,
+                name: "Indoor Plant Set",
+                description: "Set of 3 low-maintenance plants perfect for indoor spaces",
+                price: "$54.99",
+                category: "home",
+                affiliateLink: "https://example.com/plants-affiliate",
+                icon: "fas fa-seedling"
+            }
+        ];
+
+        // DOM Elements
+        const productsGrid = document.getElementById('products-grid');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const mobileMenu = document.querySelector('.nav-links');
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts('all');
+            setupEventListeners();
+            animateOnScroll();
+        });
+
+        // Render products based on category
+        function renderProducts(category) {
+            const filteredProducts = category === 'all' 
+                ? products 
+                : products.filter(product => product.category === category);
+
+            productsGrid.innerHTML = '';
+
+            filteredProducts.forEach((product, index) => {
+                const productCard = createProductCard(product);
+                productCard.style.animationDelay = `${index * 0.1}s`;
+                productsGrid.appendChild(productCard);
+            });
+
+            // Animate cards
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.product-card');
+                cards.forEach(card => card.classList.add('fade-in'));
+            }, 100);
+        }
+
+        // Create individual product card
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-category', product.category);
+
+            card.innerHTML = `
+                <div class="product-image">
+                    <i class="${product.icon}"></i>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-price">${product.price}</div>
+                    <a href="${product.affiliateLink}" target="_blank" class="buy-btn" onclick="trackClick('${product.name}')">
+                        <i class="fas fa-external-link-alt"></i> Buy Now
+                    </a>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Category filter buttons
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter products with animation
+                    filterProducts(category);
+                });
+            });
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                    // Close mobile menu if open
+                    mobileMenu.classList.remove('active');
+                });
+            });
+        }
+
+        // Filter products with smooth animation
+        function filterProducts(category) {
+            const allCards = document.querySelectorAll('.product-card');
+            
+            // Hide all cards first
+            allCards.forEach(card => {
+                card.classList.add('hidden');
+            });
+
+            // After animation, show filtered cards
+            setTimeout(() => {
+                renderProducts(category);
+            }, 300);
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('active');
+        }
+
+        // Track affiliate link clicks (for analytics)
+        function trackClick(productName) {
+            console.log(`Affiliate link clicked for: ${productName}`);
+            // Add your analytics tracking code here
+            // Example: gtag('event', 'click', { 'product_name': productName });
+        }
+
+        // Animate elements on scroll
+        function animateOnScroll() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe contact items
+            document.querySelectorAll('.contact-item').forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        // Add some interactive features
+        document.addEventListener('mouseover', function(e) {
+            if (e.target.closest('.product-card')) {
+                e.target.closest('.product-card').style.transform = 'translateY(-10px) scale(1.02)';
+            }
+        });
+
+        document.addEventListener('mouseout', function(e) {
+            if (e.target.closest('.product-card')) {
+                e.target.closest('.product-card').style.transform = 'translateY(0) scale(1)';
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('nav') && mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+
+        // Add loading animation for buy buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('buy-btn')) {
+                const btn = e.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 1000);
+            }
+        });
+
+        /*
+        HOW TO CUSTOMIZE THIS WEBSITE:
+
+        1. TO ADD NEW PRODUCTS:
+           - Add new objects to the 'products' array above
+           - Each product needs: id, name, description, price, category, affiliateLink, icon
+           - Available categories: 'electronics', 'fashion', 'home'
+           - Icons use Font Awesome classes (fas fa-icon-name)
+
+        2. TO CHANGE AFFILIATE LINKS:
+           - Update the 'affiliateLink' property for each product
+           - Replace 'https://example.com/...' with your actual affiliate URLs
+
+        3. TO ADD NEW CATEGORIES:
+           - Add products with new category names
+           - Add corresponding filter buttons in the HTML
+           - Update the filterButtons event listener if needed
+
+        4. TO CUSTOMIZE COLORS:
+           - Modify the CSS gradient values
+           - Main gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+           - Button gradient: linear-gradient(45deg, #ff6b6b, #feca57)
+
+        5. TO ADD ANALYTICS:
+           - Implement tracking in the trackClick() function
+           - Add your Google Analytics, Facebook Pixel, or other tracking codes
+
+        6. TO CUSTOMIZE CONTACT INFO:
+           - Update the contact section HTML with your real information
+           - Modify social media links in the footer
+
+        This website is fully responsive and ready to use!
+        */
+    </script>
+</body>
+</html>
