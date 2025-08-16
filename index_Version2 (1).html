@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image to PDF Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0077ff;
+      --primary-dark: #0055bb;
+      --success: #00c896;
+      --error: #d7263d;
+      --background: #f6f8fb;
+      --card: #fff;
+      --shadow: 0 2px 12px #0002;
+      --radius: 16px;
+      --transition: 0.3s cubic-bezier(.4,0,.2,1);
+      --font: 'Inter', Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: var(--background);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: var(--card);
+      padding: 40px 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      max-width: 420px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 1s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    h1 {
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 2rem;
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+      text-align: center;
+    }
+    p.sub {
+      color: #444;
+      margin-bottom: 28px;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .dropzone {
+      border: 2px dashed var(--primary);
+      border-radius: 10px;
+      padding: 36px 20px;
+      width: 100%;
+      background: #f0f6ff;
+      text-align: center;
+      color: #555;
+      cursor: pointer;
+      margin-bottom: 18px;
+      transition: border-color var(--transition), background var(--transition);
+      position: relative;
+      z-index: 1;
+    }
+    .dropzone.dragover {
+      border-color: var(--primary-dark);
+      background: #e3eeff;
+      color: var(--primary-dark);
+    }
+    .dropzone input[type="file"] {
+      display: none;
+    }
+    .file-list {
+      font-size: 0.97rem;
+      margin-bottom: 16px;
+      width: 100%;
+      padding: 0;
+      list-style: none;
+      color: #333;
+    }
+    .file-list li {
+      padding: 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.9;
+      animation: fadeIn 0.5s;
+    }
+    .file-list li span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-list li .remove {
+      cursor: pointer;
+      color: var(--error);
+      font-size: 1.1em;
+      border: none;
+      background: none;
+      padding: 0 2px;
+      transition: color 0.2s;
+    }
+    .file-list li .remove:hover {
+      color: #a80d20;
+    }
+    .btn {
+      font-size: 1rem;
+      font-family: var(--font);
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      padding: 12px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 8px #0077ff10;
+      transition: background var(--transition), transform .2s;
+      margin-top: 8px;
+    }
+    .btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      opacity: .7;
+    }
+    .loader {
+      margin: 18px auto;
+      width: 48px;
+      height: 48px;
+      border: 6px solid #eee;
+      border-top: 6px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg);}
+    }
+    .alert {
+      padding: 12px 18px;
+      border-radius: 7px;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 1.05rem;
+      width: 100%;
+      animation: fadeIn 0.5s;
+    }
+    .alert.success {
+      background: #e5fbf6;
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+    .alert.error {
+      background: #fff3f3;
+      color: var(--error);
+      border: 1px solid var(--error);
+    }
+    .anim-pop {
+      animation: pop 0.55s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes pop {
+      0% {transform: scale(0.8);}
+      50% {transform: scale(1.06);}
+      100% {transform: scale(1);}
+    }
+    .pdf-link {
+      display: block;
+      margin-top: 8px;
+      color: var(--primary-dark);
+      font-weight: 600;
+      text-decoration: underline;
+      transition: color .2s;
+      font-size: 1.07rem;
+    }
+    .pdf-link:hover {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Image to PDF</h1>
+    <p class="sub">Convert your images into a single PDF.<br>Fast, secure & free.</p>
+
+    <div class="dropzone" id="dropzone">
+      <span id="droptext">Drag & drop images here, or <label for="fileInput" style="color:var(--primary-dark); cursor:pointer;">browse</label></span>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+
+    <ul class="file-list" id="fileList"></ul>
+    
+    <button class="btn" id="convertBtn" disabled>Convert & Download PDF</button>
+    <div id="loader" style="display:none;" class="loader"></div>
+    <div id="alert"></div>
+  </div>
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileListUI = document.getElementById('fileList');
+    const convertBtn = document.getElementById('convertBtn');
+    const loader = document.getElementById('loader');
+    const alert = document.getElementById('alert');
+    let files = [];
+
+    // Dropzone events
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    function handleFiles(selected) {
+      // Only allow images
+      const validFiles = Array.from(selected).filter(f => f.type.startsWith('image/'));
+      if (validFiles.length < selected.length) {
+        showAlert('Only image files are allowed.', 'error');
+      }
+      files = files.concat(validFiles).slice(0, 20); // limit to 20 files
+      updateFileList();
+    }
+
+    function updateFileList() {
+      fileListUI.innerHTML = '';
+      files.forEach((file, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${file.name}</span>
+          <button class="remove" title="Remove" onclick="removeFile(${i})">&times;</button>`;
+        fileListUI.appendChild(li);
+      });
+      convertBtn.disabled = files.length === 0;
+    }
+
+    window.removeFile = function(idx) {
+      files.splice(idx, 1);
+      updateFileList();
+    };
+
+    function showAlert(msg, type = 'success', link = null) {
+      alert.innerHTML = '';
+      alert.className = 'alert ' + type + ' anim-pop';
+      alert.innerText = msg;
+      if (link) {
+        const a = document.createElement('a');
+        a.href = link;
+        a.innerText = 'Download PDF';
+        a.className = 'pdf-link';
+        a.target = '_blank';
+        alert.appendChild(a);
+      }
+      setTimeout(() => alert.classList.remove('anim-pop'), 500);
+    }
+
+    convertBtn.addEventListener('click', async () => {
+      alert.innerHTML = '';
+      loader.style.display = 'block';
+      convertBtn.disabled = true;
+
+      const formData = new FormData();
+      files.forEach(f => formData.append('images', f));
+      try {
+        const response = await fetch('/convert', {
+          method: 'POST',
+          body: formData
+        });
+        loader.style.display = 'none';
+        convertBtn.disabled = false;
+
+        if (!response.ok) throw new Error('Failed to convert images.');
+
+        const blob = await response.blob();
+        // Animate success
+        showAlert('PDF ready! Click to download.', 'success');
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'converted.pdf';
+        a.className = 'pdf-link';
+        a.innerText = 'Download PDF';
+        a.onclick = () => {
+          setTimeout(() => window.URL.revokeObjectURL(url), 3000);
+          alert.innerHTML = '';
+          files = [];
+          updateFileList();
+        };
+        alert.appendChild(a);
+      } catch (err) {
+        loader.style.display = 'none';
+        convertBtn.disabled = false;
+        showAlert('Error: ' + err.message, 'error');
+      }
+    });
+
+    // Animation for newly added files
+    fileListUI.addEventListener('DOMNodeInserted', function(e) {
+      if (e.target.tagName === 'LI') {
+        e.target.classList.add('anim-pop');
+        setTimeout(() => e.target.classList.remove('anim-pop'), 550);
+      }
+    });
+  </script>
+</body>
+</html>
