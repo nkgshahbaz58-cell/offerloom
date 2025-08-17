@@ -1,59 +1,228 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Image to PDF Converter</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tiny x86 OS — In‑Browser Runner (HTML)</title>
+  <style>
+    :root { --bg:#f8fafc; --fg:#0f172a; --muted:#475569; --card:#ffffff; --border:#e2e8f0; }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(#f8fbff,#fff)}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    .title{font-size:28px;font-weight:800;margin:4px 0 2px 0;letter-spacing:-0.02em}
+    .sub{color:var(--muted);margin:0 0 20px 0}
+    .grid{display:grid;gap:16px}
+    @media(min-width:900px){.cols{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 16px rgba(2,6,23,.04)}
+    .card h3{margin:0;padding:16px 18px;border-bottom:1px solid var(--border);font-size:16px}
+    .card .body{padding:16px 18px}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    button, .btn{appearance:none;border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:14px;font-weight:600;cursor:pointer}
+    button.primary{background:#111827;color:#fff;border-color:#111827}
+    button.ghost{background:transparent}
+    .status{color:#64748b;font-size:12px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    pre{margin:0;white-space:pre;overflow:auto;background:#0b1020;color:#e6edf3;padding:14px;border-radius:12px}
+    code{font-family:inherit}
+    .screen{width:100%;height:360px;background:#000;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;overflow:hidden}
+    .tabs{display:flex;gap:8px;margin:8px 0 0 0}
+    .tab{padding:8px 12px;border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0;background:#f8fafc;cursor:pointer;font-weight:600}
+    .tab.active{background:#fff}
+    .tabpanes{border:1px solid var(--border);border-radius:0 12px 12px 12px;margin-top:-1px}
+    ul{margin:0 0 0 18px}
+    .muted{color:#64748b}
+    input[type="file"]{border:1px dashed var(--border);padding:8px;border-radius:12px;background:#fff}
+    a{color:#0f766e;text-decoration:none}
+  </style>
+  <!-- External libraries (CDN). If you self-host, place these files in your project and update paths. -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <!-- v86: x86 emulator compiled to WebAssembly -->
+  <script src="https://unpkg.com/v86/build/bundle/v86.js"></script>
 </head>
 <body>
-  <h1>Image to PDF Converter</h1>
-  <form id="uploadForm">
-    <input type="file" name="images" id="images" multiple accept="image/*">
-    <button type="submit">Convert to PDF</button>
-  </form>
-  <div id="message"></div>
+  <div class="container">
+    <h1 class="title">Tiny x86 OS — In‑Browser Runner</h1>
+    <p class="sub">Write in assembly, build with NASM, then boot your raw image here — right in your webpage.</p>
+
+    <div class="grid cols">
+      <div class="card">
+        <h3>How to use</h3>
+        <div class="body">
+          <ol>
+            <li>Click <b>Download sources</b> to get <span class="mono">boot.asm</span>, <span class="mono">kernel.asm</span>, and <span class="mono">Makefile</span>.</li>
+            <li>Install NASM & QEMU (e.g., <span class="mono">sudo apt-get install nasm qemu-system-x86</span>).</li>
+            <li>Run <span class="mono">make</span> to produce <span class="mono">os.img</span> (raw 1–2 sector image).</li>
+            <li>Upload <span class="mono">os.img</span> and click <b>Run in browser</b>.</li>
+          </ol>
+          <p class="muted">Expected output: BIOS boots the 512‑byte boot sector, prints <i>Booting tiny OS…</i>, loads the kernel sector, and the kernel writes to the VGA text buffer.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Controls</h3>
+        <div class="body">
+          <div class="row">
+            <button class="primary" id="downloadZipBtn">Download sources</button>
+            <label class="row">
+              <input id="imgFile" type="file" accept=".img,.bin" />
+            </label>
+            <button id="runBtn">Run in browser</button>
+            <button class="ghost" id="downloadUploadedBtn">Download uploaded</button>
+            <button class="ghost" id="resetBtn">Reset</button>
+          </div>
+          <div class="status" id="status">Status: Idle</div>
+          <div class="status" id="loadedName"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Emulator</h3>
+      <div class="body">
+        <div id="screen" class="screen">Upload an <code>os.img</code> and click Run</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="boot">boot.asm</button>
+      <button class="tab" data-tab="kernel">kernel.asm</button>
+      <button class="tab" data-tab="make">Makefile</button>
+    </div>
+    <div class="tabpanes card">
+      <div class="body" id="pane-boot">
+        <pre><code id="code-boot"></code></pre>
+      </div>
+      <div class="body" id="pane-kernel" style="display:none">
+        <pre><code id="code-kernel"></code></pre>
+      </div>
+      <div class="body" id="pane-make" style="display:none">
+        <pre><code id="code-make"></code></pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Notes & Tips</h3>
+      <div class="body">
+        <ul>
+          <li>Ensure <span class="mono">kernel.bin</span> is exactly 512 bytes for this demo (we use <span class="mono">truncate -s 512</span>). You can extend to multiple sectors later.</li>
+          <li>You can do a single‑sector OS entirely in the boot sector and skip loading <span class="mono">kernel.bin</span>.</li>
+          <li>Windows: use WSL or install NASM + QEMU via Chocolatey (<span class="mono">choco install nasm qemu</span>).</li>
+          <li>v86 emulates a legacy BIOS PC. Raw floppy‑style images work well.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const form = document.getElementById('uploadForm');
-    const message = document.getElementById('message');
+    // --- Source files (same as the React version) ---
+    const BOOT_ASM = `; boot.asm — 512-byte boot sector\n; BIOS loads this at 0x7C00 and jumps here.\nBITS 16\nORG 0x7C00\n\nstart:\n    xor ax, ax\n    mov ds, ax\n    mov es, ax\n    mov ss, ax\n    mov sp, 0x7C00\n\n    mov si, msg\n.print:\n    lodsb\n    test al, al\n    jz .load_kernel\n    mov ah, 0x0E\n    int 0x10\n    jmp .print\n\n.load_kernel:\n    ; Read 1 sector (512 bytes) from LBA 1 (CHS: cyl0 head0 sect2) to 0x0000:0x1000\n    mov bx, 0x1000\n    mov dh, 0\n    mov dl, [BOOT_DRIVE]\n    mov ch, 0\n    mov cl, 2\n    mov ah, 0x02\n    mov al, 1\n    int 0x13\n    jc  .disk_error\n    jmp 0x0000:0x1000\n\n.disk_error:\n    mov si, err\n.err_loop:\n    lodsb\n    test al, al\n    jz $\n    mov ah, 0x0E\n    int 0x10\n    jmp .err_loop\n\nmsg db "Booting tiny OS...", 0\nerr db "Disk read error!", 0\n\nBOOT_DRIVE db 0\n\n; BIOS sets DL to boot drive; save it (optional if you chain-boot)\nsave_drive:\n    mov [BOOT_DRIVE], dl\n    ret\n\n; Pad to 512 bytes and add the 0x55AA boot signature\ntimes 510-($-$$) db 0\ndw 0xAA55\n`;
 
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const files = document.getElementById('images').files;
-      if (files.length === 0) {
-        message.textContent = 'Please select image files.';
-        return;
-      }
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('images', files[i]);
-      }
+    const KERNEL_ASM = `; kernel.asm — tiny real-mode kernel at 0x1000\nBITS 16\nORG 0x1000\n\nstart:\n    mov ax, 0xB800\n    mov es, ax\n    xor di, di\n\n    mov si, msg\n    mov ah, 0x07\n.print:\n    lodsb\n    test al, al\n    jz .halt\n    stosw\n    jmp .print\n\n.halt:\n    cli\n.hang:\n    hlt\n    jmp .hang\n\nmsg db "Hello from pure bits!", 0\n`;
 
-      message.textContent = 'Converting...';
+    const MAKEFILE = `all: os.img\n\nboot.bin: boot.asm\n\t nasm -f bin boot.asm -o boot.bin\n\nkernel.bin: kernel.asm\n\t nasm -f bin kernel.asm -o kernel.bin\n\t truncate -s 512 kernel.bin\n\nos.img: boot.bin kernel.bin\n\t cat boot.bin kernel.bin > os.img\n\nrun: os.img\n\t qemu-system-i386 -drive format=raw,file=os.img\n\nclean:\n\t rm -f boot.bin kernel.bin os.img\n`;
 
-      try {
-        const response = await fetch('https://offerloom-r7jf-79xr5dfg2-nkgshahbaz58-cells-projects.vercel.app/convert', {
-          method: 'POST',
-          body: formData
-        });
+    // Fill code panes
+    document.getElementById('code-boot').textContent = BOOT_ASM;
+    document.getElementById('code-kernel').textContent = KERNEL_ASM;
+    document.getElementById('code-make').textContent = MAKEFILE;
 
-        if (!response.ok) {
-          throw new Error('Conversion failed.');
-        }
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        // Download the PDF
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'converted.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        message.textContent = 'PDF downloaded!';
-      } catch (error) {
-        message.textContent = 'Error: ' + error.message;
-      }
+    // Tabs
+    const tabs = document.querySelectorAll('.tab');
+    const panes = {
+      boot: document.getElementById('pane-boot'),
+      kernel: document.getElementById('pane-kernel'),
+      make: document.getElementById('pane-make'),
+    };
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const t = btn.getAttribute('data-tab');
+        for (const k in panes) panes[k].style.display = (k === t) ? 'block' : 'none';
+      });
     });
+
+    // Utility
+    const statusEl = document.getElementById('status');
+    const loadedNameEl = document.getElementById('loadedName');
+    function setStatus(s){ statusEl.textContent = 'Status: ' + s; }
+
+    // Download sources as zip
+    document.getElementById('downloadZipBtn').addEventListener('click', async () => {
+      const zip = new JSZip();
+      zip.file('boot.asm', BOOT_ASM);
+      zip.file('kernel.asm', KERNEL_ASM);
+      zip.file('Makefile', MAKEFILE);
+      const blob = await zip.generateAsync({type:'blob'});
+      saveAs(blob, 'tiny-os-sources.zip');
+    });
+
+    // File upload handling
+    let uploadedBytes = null;
+    let uploadedName = '';
+    document.getElementById('imgFile').addEventListener('change', async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if(!f){ return; }
+      uploadedName = f.name;
+      const ab = await f.arrayBuffer();
+      uploadedBytes = new Uint8Array(ab);
+      loadedNameEl.textContent = 'Loaded image: ' + uploadedName;
+      setStatus('Image loaded');
+    });
+
+    // v86 emulator
+    let vm = null;
+    function killVm(){
+      if(vm){ try{ vm.stop(); }catch(e){} vm = null; }
+    }
+
+    async function bootImage(bytes){
+      killVm();
+      setStatus('Booting…');
+      const screen = document.getElementById('screen');
+      // v86 constructor (paths assume CDN). If you self-host, serve these paths yourself.
+      vm = new V86({
+        wasm_path: 'https://unpkg.com/v86/build/bundle/v86.wasm',
+        memory_size: 32 * 1024 * 1024,
+        vga_memory_size: 2 * 1024 * 1024,
+        screen_container: screen,
+        autostart: true,
+        disable_keyboard: false,
+        disable_mouse: true,
+        fda: { buffer: bytes },
+      });
+
+      vm.add_listener('emulator-ready', () => setStatus('Emulator ready'));
+      vm.add_listener('screen-set-mode', () => setStatus('Running'));
+      vm.add_listener('halt', () => setStatus('HALT'));
+      vm.add_listener('error', (e) => setStatus('Error: ' + (e && e.message ? e.message : e)));
+    }
+
+    document.getElementById('runBtn').addEventListener('click', async () => {
+      if(!uploadedBytes){ setStatus('Please upload os.img first'); return; }
+      bootImage(uploadedBytes);
+    });
+
+    document.getElementById('downloadUploadedBtn').addEventListener('click', () => {
+      if(!uploadedBytes) return;
+      const blob = new Blob([uploadedBytes], {type:'application/octet-stream'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = uploadedName || 'os.img';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      killVm();
+      uploadedBytes = null; uploadedName = '';
+      document.getElementById('imgFile').value = '';
+      loadedNameEl.textContent = '';
+      setStatus('Idle');
+    });
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', killVm);
   </script>
 </body>
 </html>
