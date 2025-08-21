@@ -1,228 +1,587 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tiny x86 OS — In‑Browser Runner (HTML)</title>
-  <style>
-    :root { --bg:#f8fafc; --fg:#0f172a; --muted:#475569; --card:#ffffff; --border:#e2e8f0; }
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(#f8fbff,#fff)}
-    .container{max-width:1100px;margin:0 auto;padding:24px}
-    .title{font-size:28px;font-weight:800;margin:4px 0 2px 0;letter-spacing:-0.02em}
-    .sub{color:var(--muted);margin:0 0 20px 0}
-    .grid{display:grid;gap:16px}
-    @media(min-width:900px){.cols{grid-template-columns:1fr 1fr}}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 16px rgba(2,6,23,.04)}
-    .card h3{margin:0;padding:16px 18px;border-bottom:1px solid var(--border);font-size:16px}
-    .card .body{padding:16px 18px}
-    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-    button, .btn{appearance:none;border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:14px;font-weight:600;cursor:pointer}
-    button.primary{background:#111827;color:#fff;border-color:#111827}
-    button.ghost{background:transparent}
-    .status{color:#64748b;font-size:12px}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-    pre{margin:0;white-space:pre;overflow:auto;background:#0b1020;color:#e6edf3;padding:14px;border-radius:12px}
-    code{font-family:inherit}
-    .screen{width:100%;height:360px;background:#000;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;overflow:hidden}
-    .tabs{display:flex;gap:8px;margin:8px 0 0 0}
-    .tab{padding:8px 12px;border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0;background:#f8fafc;cursor:pointer;font-weight:600}
-    .tab.active{background:#fff}
-    .tabpanes{border:1px solid var(--border);border-radius:0 12px 12px 12px;margin-top:-1px}
-    ul{margin:0 0 0 18px}
-    .muted{color:#64748b}
-    input[type="file"]{border:1px dashed var(--border);padding:8px;border-radius:12px;background:#fff}
-    a{color:#0f766e;text-decoration:none}
-  </style>
-  <!-- External libraries (CDN). If you self-host, place these files in your project and update paths. -->
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-  <!-- v86: x86 emulator compiled to WebAssembly -->
-  <script src="https://unpkg.com/v86/build/bundle/v86.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>EPF Calculator 2025 - Calculate Employee Provident Fund | Free Online Tool</title>
+    <meta name="description" content="Calculate your EPF corpus with our advanced EPF Calculator 2025. Get accurate projections of Employee Provident Fund growth, monthly contributions, and retirement benefits. Free online tool with charts and detailed breakdown.">
+    <meta name="keywords" content="EPF Calculator, Employee Provident Fund Calculator, PF Calculator, Retirement Calculator, EPF Interest Rate 2025, EPF Contribution Calculator, Provident Fund Growth Calculator">
+    <meta name="author" content="EPF Calculator Tool">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="EPF Calculator 2025 - Calculate Employee Provident Fund">
+    <meta property="og:description" content="Free online EPF Calculator to calculate your Employee Provident Fund corpus. Get accurate projections with interactive charts and detailed financial breakdown.">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/667eea/ffffff?text=EPF+Calculator+2025">
+    <meta property="og:url" content="https://epf-calculator.com">
+    <meta property="og:site_name" content="EPF Calculator">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EPF Calculator 2025 - Calculate Employee Provident Fund">
+    <meta name="twitter:description" content="Free online EPF Calculator with interactive charts. Calculate your PF corpus, monthly contributions, and retirement benefits accurately.">
+    <meta name="twitter:image" content="https://via.placeholder.com/1200x630/667eea/ffffff?text=EPF+Calculator+2025">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://epf-calculator.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0idXJsKCNncmFkaWVudDApIi8+CjxwYXRoIGQ9Ik04IDE2SDE2VjI0SDgiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuOCIvPgo8cGF0aCBkPSJNMTYgOEgyNFYxNkgxNlY4WiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC42Ii8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MCIgeDE9IjAiIHkxPSIwIiB4Mj0iMzIiIHkyPSIzMiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjNjY3RUVBIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzc2NEJBMiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "EPF Calculator 2025",
+        "description": "Free online Employee Provident Fund (EPF) calculator to calculate your PF corpus, monthly contributions, and retirement benefits with interactive charts.",
+        "url": "https://epf-calculator.com",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "EPF Calculator"
+        },
+        "datePublished": "2025-01-01",
+        "dateModified": "2025-08-21",
+        "inLanguage": "en-US",
+        "isAccessibleForFree": true,
+        "screenshot": "https://via.placeholder.com/1200x800/667eea/ffffff?text=EPF+Calculator+Screenshot"
+    }
+    </script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Advanced Gradients */
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Glass Morphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .glass-card-dark {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Advanced Input Styling */
+        .modern-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .modern-input:focus {
+            background: rgba(255, 255, 255, 1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 10px 30px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+            outline: none;
+        }
+        
+        .modern-input:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Advanced Button Animations */
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .calculate-btn:hover::before {
+            left: 100%;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Result Cards with Advanced Animations */
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: perspective(1000px) rotateX(0deg);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .result-card:hover {
+            transform: perspective(1000px) rotateX(5deg) translateY(-5px);
+            box-shadow: 0 20px 40px rgba(245, 87, 108, 0.3);
+        }
+        
+        .result-card-blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .result-card-blue:hover {
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Advanced Tooltips */
+        .tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .tooltip-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .tooltip-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(10px);
+            width: 220px;
+            background: linear-gradient(135deg, #333, #555);
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 130%;
+            left: 50%;
+            margin-left: -110px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        /* Advanced Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Floating Particles Background */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+        .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+        .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+        .particle:nth-child(7) { left: 70%; animation-delay: 0.5s; }
+        .particle:nth-child(8) { left: 80%; animation-delay: 1.5s; }
+        .particle:nth-child(9) { left: 90%; animation-delay: 2.5s; }
+        .particle:nth-child(10) { left: 15%; animation-delay: 3.5s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) scale(0); }
+            10% { transform: translateY(90vh) scale(1); }
+            90% { transform: translateY(-10vh) scale(1); }
+        }
+        
+        /* Advanced Entry Animations */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 100%, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translate3d(-100%, 0, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translate3d(100%, 0, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+            20% {
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+            40% {
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+            60% {
+                opacity: 1;
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+            80% {
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: scale3d(1, 1, 1);
+            }
+        }
+        
+        .slide-in-up { animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-in-left { animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-in-right { animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bounce-in { animation: bounceIn 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Staggered Animation Delays */
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        
+        /* Number Counter Animation */
+        .counter {
+            font-feature-settings: 'tnum';
+            font-variant-numeric: tabular-nums;
+        }
+        
+        /* Chart Container Enhancement */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .hero-gradient {
+                background-size: 200% 200%;
+            }
+            
+            .tooltip-text {
+                width: 180px;
+                margin-left: -90px;
+                font-size: 11px;
+            }
+            
+            .glass-card {
+                backdrop-filter: blur(15px);
+            }
+        }
+        
+        /* Accessibility Improvements */
+        .focus-visible:focus-visible {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        /* FAQ Section Styling */
+        .faq-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .faq-question {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .faq-answer.active {
+            max-height: 200px;
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <h1 class="title">Tiny x86 OS — In‑Browser Runner</h1>
-    <p class="sub">Write in assembly, build with NASM, then boot your raw image here — right in your webpage.</p>
-
-    <div class="grid cols">
-      <div class="card">
-        <h3>How to use</h3>
-        <div class="body">
-          <ol>
-            <li>Click <b>Download sources</b> to get <span class="mono">boot.asm</span>, <span class="mono">kernel.asm</span>, and <span class="mono">Makefile</span>.</li>
-            <li>Install NASM & QEMU (e.g., <span class="mono">sudo apt-get install nasm qemu-system-x86</span>).</li>
-            <li>Run <span class="mono">make</span> to produce <span class="mono">os.img</span> (raw 1–2 sector image).</li>
-            <li>Upload <span class="mono">os.img</span> and click <b>Run in browser</b>.</li>
-          </ol>
-          <p class="muted">Expected output: BIOS boots the 512‑byte boot sector, prints <i>Booting tiny OS…</i>, loads the kernel sector, and the kernel writes to the VGA text buffer.</p>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Breadcrumb Navigation -->
+    <nav class="bg-white shadow-sm py-2" aria-label="Breadcrumb">
+        <div class="container mx-auto px-4">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="/" class="hover:text-blue-600">Home</a></li>
+                <li class="text-gray-400">/</li>
+                <li><a href="/calculators" class="hover:text-blue-600">Calculators</a></li>
+                <li class="text-gray-400">/</li>
+                <li class="text-gray-900 font-medium" aria-current="page">EPF Calculator</li>
+            </ol>
         </div>
-      </div>
+    </nav>
 
-      <div class="card">
-        <h3>Controls</h3>
-        <div class="body">
-          <div class="row">
-            <button class="primary" id="downloadZipBtn">Download sources</button>
-            <label class="row">
-              <input id="imgFile" type="file" accept=".img,.bin" />
-            </label>
-            <button id="runBtn">Run in browser</button>
-            <button class="ghost" id="downloadUploadedBtn">Download uploaded</button>
-            <button class="ghost" id="resetBtn">Reset</button>
-          </div>
-          <div class="status" id="status">Status: Idle</div>
-          <div class="status" id="loadedName"></div>
+    <!-- Enhanced Header with Particles -->
+    <header class="hero-gradient text-white py-16 relative overflow-hidden">
+        <div class="particles" aria-hidden="true">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
         </div>
-      </div>
-    </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center slide-in-up">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+                    EPF Calculator
+                    <span class="block text-2xl md:text-3xl font-normal mt-2 opacity-90">2025</span>
+                </h1>
+                <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed mb-6">
+                    Calculate your Employee Provident Fund corpus with stunning precision and beautiful visualizations. Free online PF calculator with current interest rates.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 text-sm">
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">✅ Current EPF Rate 8.25%</span>
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">📊 Interactive Charts</span>
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">💯 100% Free</span>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <div class="card" style="margin-top:16px">
-      <h3>Emulator</h3>
-      <div class="body">
-        <div id="screen" class="screen">Upload an <code>os.img</code> and click Run</div>
-      </div>
-    </div>
+    <!-- Enhanced Main Content -->
+    <main class="container mx-auto px-4 py-12 relative -mt-8 z-20">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                
+                <!-- Enhanced Input Form -->
+                <section class="glass-card rounded-3xl p-8 md:p-10 slide-in-left" aria-labelledby="calculator-heading">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center" aria-hidden="true">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 id="calculator-heading" class="text-3xl font-bold text-gray-800 mb-2">Calculate Your EPF Corpus</h2>
+                        <p class="text-gray-600">Enter your salary details to see your future EPF wealth projection</p>
+                    </div>
+                    
+                    <form id="epfForm" class="space-y-8" novalidate>
+                        <!-- Enhanced Basic Salary Input -->
+                        <div class="delay-100 slide-in-up">
+                            <label for="basicSalary" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                💰 Basic Salary + DA (Monthly in ₹)
+                                <div class="tooltip ml-3">
+                                    <span class="tooltip-icon" role="button" tabindex="0" aria-label="Help information">?</span>
+                                    <span class="tooltip-text" role="tooltip">Your monthly basic salary plus dearness allowance. EPF contribution is calculated on this amount. This forms the foundation of your EPF calculations.</span>
+                                </div>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium" aria-hidden="true">₹</span>
+                                <input type="number" id="basicSalary" name="basicSalary" class="modern-input w-full pl-8 pr-4 py-4 rounded-2xl text-lg font-medium focus-visible" placeholder="50,000" required aria-describedby="basicSalary-error" min="1" max="99999999">
+                                <div id="basicSalary-error" class="text-red-500 text-sm mt-1 hidden" role="alert"></div>
+                            </div>
+                        </div>
 
-    <div class="tabs">
-      <button class="tab active" data-tab="boot">boot.asm</button>
-      <button class="tab" data-tab="kernel">kernel.asm</button>
-      <button class="tab" data-tab="make">Makefile</button>
-    </div>
-    <div class="tabpanes card">
-      <div class="body" id="pane-boot">
-        <pre><code id="code-boot"></code></pre>
-      </div>
-      <div class="body" id="pane-kernel" style="display:none">
-        <pre><code id="code-kernel"></code></pre>
-      </div>
-      <div class="body" id="pane-make" style="display:none">
-        <pre><code id="code-make"></code></pre>
-      </div>
-    </div>
+                        <!-- Enhanced Employee Contribution -->
+                        <div class="delay-200 slide-in-up">
+                            <label for="employeeContribution" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                👤 Employee Contribution (%)
+                                <div class="tooltip ml-3">
+                                    <span class="tooltip-icon" role="button" tabindex="0" aria-label="Help information">?</span>
+                                    <span class="tooltip-text" role="tooltip">Percentage of basic salary that you contribute to EPF. Usually 12% of basic salary as per EPF regulations.</span>
+                                </div>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="employeeContribution" name="employeeContribution" value="12" step="0.01" class="modern-input w-full px-4 py-4 rounded-2xl text-lg font-medium focus-visible" required min="0" max="100">
+                                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium" aria-hidden="true">%</span>
+                            </div>
+                        </div>
 
-    <div class="card" style="margin-top:16px">
-      <h3>Notes & Tips</h3>
-      <div class="body">
-        <ul>
-          <li>Ensure <span class="mono">kernel.bin</span> is exactly 512 bytes for this demo (we use <span class="mono">truncate -s 512</span>). You can extend to multiple sectors later.</li>
-          <li>You can do a single‑sector OS entirely in the boot sector and skip loading <span class="mono">kernel.bin</span>.</li>
-          <li>Windows: use WSL or install NASM + QEMU via Chocolatey (<span class="mono">choco install nasm qemu</span>).</li>
-          <li>v86 emulates a legacy BIOS PC. Raw floppy‑style images work well.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+                        <!-- Enhanced Employer Contribution -->
+                        <div class="delay-300 slide-in-up">
+                            <label for="employerContribution" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                🏢 Employer Contribution (%)
+                                <div class="tooltip ml-3">
+                                    <span class="tooltip-icon" role="button" tabindex="0" aria-label="Help information">?</span>
+                                    <span class="tooltip-text" role="tooltip">Percentage contributed by your employer to your EPF account. 3.67% goes to EPF, remaining to EPS and EDLI schemes.</span>
+                                </div>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="employerContribution" name="employerContribution" value="3.67" step="0.01" class="modern-input w-full px-4 py-4 rounded-2xl text-lg font-medium focus-visible" required min="0" max="100">
+                                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium" aria-hidden="true">%</span>
+                            </div>
+                        </div>
 
-  <script>
-    // --- Source files (same as the React version) ---
-    const BOOT_ASM = `; boot.asm — 512-byte boot sector\n; BIOS loads this at 0x7C00 and jumps here.\nBITS 16\nORG 0x7C00\n\nstart:\n    xor ax, ax\n    mov ds, ax\n    mov es, ax\n    mov ss, ax\n    mov sp, 0x7C00\n\n    mov si, msg\n.print:\n    lodsb\n    test al, al\n    jz .load_kernel\n    mov ah, 0x0E\n    int 0x10\n    jmp .print\n\n.load_kernel:\n    ; Read 1 sector (512 bytes) from LBA 1 (CHS: cyl0 head0 sect2) to 0x0000:0x1000\n    mov bx, 0x1000\n    mov dh, 0\n    mov dl, [BOOT_DRIVE]\n    mov ch, 0\n    mov cl, 2\n    mov ah, 0x02\n    mov al, 1\n    int 0x13\n    jc  .disk_error\n    jmp 0x0000:0x1000\n\n.disk_error:\n    mov si, err\n.err_loop:\n    lodsb\n    test al, al\n    jz $\n    mov ah, 0x0E\n    int 0x10\n    jmp .err_loop\n\nmsg db "Booting tiny OS...", 0\nerr db "Disk read error!", 0\n\nBOOT_DRIVE db 0\n\n; BIOS sets DL to boot drive; save it (optional if you chain-boot)\nsave_drive:\n    mov [BOOT_DRIVE], dl\n    ret\n\n; Pad to 512 bytes and add the 0x55AA boot signature\ntimes 510-($-$$) db 0\ndw 0xAA55\n`;
+                        <!-- Enhanced Interest Rate -->
+                        <div class="delay-400 slide-in-up">
+                            <label for="interestRate" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                📈 Current EPF Interest Rate (%)
+                                <div class="tooltip ml-3">
+                                    <span class="tooltip-icon" role="button" tabindex="0" aria-label="Help information">?</span>
+                                    <span class="tooltip-text" role="tooltip">Annual interest rate declared by EPFO. Current rate is 8.25% for FY 2024-25. This rate is reviewed annually by the government.</span>
+                                </div>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="interestRate" name="interestRate" value="8.25" step="0.01" class="modern-input w-full px-4 py-4 rounded-2xl text-lg font-medium focus-visible" required min="0" max="50">
+                                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium" aria-hidden="true">%</span>
+                            </div>
+                        </div>
 
-    const KERNEL_ASM = `; kernel.asm — tiny real-mode kernel at 0x1000\nBITS 16\nORG 0x1000\n\nstart:\n    mov ax, 0xB800\n    mov es, ax\n    xor di, di\n\n    mov si, msg\n    mov ah, 0x07\n.print:\n    lodsb\n    test al, al\n    jz .halt\n    stosw\n    jmp .print\n\n.halt:\n    cli\n.hang:\n    hlt\n    jmp .hang\n\nmsg db "Hello from pure bits!", 0\n`;
-
-    const MAKEFILE = `all: os.img\n\nboot.bin: boot.asm\n\t nasm -f bin boot.asm -o boot.bin\n\nkernel.bin: kernel.asm\n\t nasm -f bin kernel.asm -o kernel.bin\n\t truncate -s 512 kernel.bin\n\nos.img: boot.bin kernel.bin\n\t cat boot.bin kernel.bin > os.img\n\nrun: os.img\n\t qemu-system-i386 -drive format=raw,file=os.img\n\nclean:\n\t rm -f boot.bin kernel.bin os.img\n`;
-
-    // Fill code panes
-    document.getElementById('code-boot').textContent = BOOT_ASM;
-    document.getElementById('code-kernel').textContent = KERNEL_ASM;
-    document.getElementById('code-make').textContent = MAKEFILE;
-
-    // Tabs
-    const tabs = document.querySelectorAll('.tab');
-    const panes = {
-      boot: document.getElementById('pane-boot'),
-      kernel: document.getElementById('pane-kernel'),
-      make: document.getElementById('pane-make'),
-    };
-    tabs.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabs.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const t = btn.getAttribute('data-tab');
-        for (const k in panes) panes[k].style.display = (k === t) ? 'block' : 'none';
-      });
-    });
-
-    // Utility
-    const statusEl = document.getElementById('status');
-    const loadedNameEl = document.getElementById('loadedName');
-    function setStatus(s){ statusEl.textContent = 'Status: ' + s; }
-
-    // Download sources as zip
-    document.getElementById('downloadZipBtn').addEventListener('click', async () => {
-      const zip = new JSZip();
-      zip.file('boot.asm', BOOT_ASM);
-      zip.file('kernel.asm', KERNEL_ASM);
-      zip.file('Makefile', MAKEFILE);
-      const blob = await zip.generateAsync({type:'blob'});
-      saveAs(blob, 'tiny-os-sources.zip');
-    });
-
-    // File upload handling
-    let uploadedBytes = null;
-    let uploadedName = '';
-    document.getElementById('imgFile').addEventListener('change', async (e) => {
-      const f = e.target.files && e.target.files[0];
-      if(!f){ return; }
-      uploadedName = f.name;
-      const ab = await f.arrayBuffer();
-      uploadedBytes = new Uint8Array(ab);
-      loadedNameEl.textContent = 'Loaded image: ' + uploadedName;
-      setStatus('Image loaded');
-    });
-
-    // v86 emulator
-    let vm = null;
-    function killVm(){
-      if(vm){ try{ vm.stop(); }catch(e){} vm = null; }
-    }
-
-    async function bootImage(bytes){
-      killVm();
-      setStatus('Booting…');
-      const screen = document.getElementById('screen');
-      // v86 constructor (paths assume CDN). If you self-host, serve these paths yourself.
-      vm = new V86({
-        wasm_path: 'https://unpkg.com/v86/build/bundle/v86.wasm',
-        memory_size: 32 * 1024 * 1024,
-        vga_memory_size: 2 * 1024 * 1024,
-        screen_container: screen,
-        autostart: true,
-        disable_keyboard: false,
-        disable_mouse: true,
-        fda: { buffer: bytes },
-      });
-
-      vm.add_listener('emulator-ready', () => setStatus('Emulator ready'));
-      vm.add_listener('screen-set-mode', () => setStatus('Running'));
-      vm.add_listener('halt', () => setStatus('HALT'));
-      vm.add_listener('error', (e) => setStatus('Error: ' + (e && e.message ? e.message : e)));
-    }
-
-    document.getElementById('runBtn').addEventListener('click', async () => {
-      if(!uploadedBytes){ setStatus('Please upload os.img first'); return; }
-      bootImage(uploadedBytes);
-    });
-
-    document.getElementById('downloadUploadedBtn').addEventListener('click', () => {
-      if(!uploadedBytes) return;
-      const blob = new Blob([uploadedBytes], {type:'application/octet-stream'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = uploadedName || 'os.img';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    });
-
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      killVm();
-      uploadedBytes = null; uploadedName = '';
-      document.getElementById('imgFile').value = '';
-      loadedNameEl.textContent = '';
-      setStatus('Idle');
-    });
-
-    // Clean up on page unload
-    window.addEventListener('beforeunload', killVm);
-  </script>
-</body>
-</html>
+                        <!-- Enhanced Tenure -->
+                        <div class="delay-500 slide-in-up">
+                            <label for="tenure" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                ⏰ Investment Tenure (Years)
+                                <div class="tooltip ml-3">
+                                    <span class="tooltip-icon" role="button" tabindex="0" aria-label="Help information">?</span>
+                                    <span class="tooltip-text" role="tooltip">Number of years you plan to contribute to EPF before withdrawal or retirement. Maximum service period is typically 35-40 years.</span>
+                                </div>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="tenure" name="tenure" class="modern-input w-full px-4 py-4 rounded-2xl text-lg font-medium focus-visible" placeholder="20" min="1" max="40" required>
+                                <span class="absolute right-4 top-1/2 transform -translate-y-1/2
